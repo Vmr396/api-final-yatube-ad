@@ -1,9 +1,12 @@
-from rest_framework import viewsets, permissions, filters
-from django.contrib.auth import get_user_model
-from posts.models import Follow
-from api.serializers import FollowSerializer
+from rest_framework import viewsets, filters, permissions
+from rest_framework.exceptions import ValidationError
+from django.shortcuts import get_object_or_404
+from posts.models import Post, Group, Comment, Follow
+from api.serializers import (
+    PostSerializer, GroupSerializer, CommentSerializer, FollowSerializer
+)
+from api.permissions import IsAuthorOrReadOnly
 
-User = get_user_model()
 
 class FollowViewSet(viewsets.ModelViewSet):
     serializer_class = FollowSerializer
@@ -15,4 +18,6 @@ class FollowViewSet(viewsets.ModelViewSet):
         return Follow.objects.filter(user=self.request.user)
 
     def perform_create(self, serializer):
+        if self.request.user == serializer.validated_data['following']:
+            raise ValidationError('Нельзя подписаться на самого себя')
         serializer.save(user=self.request.user)
