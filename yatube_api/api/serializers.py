@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from posts.models import Follow, Post, Group, Comment
+from posts.models import Follow 
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
