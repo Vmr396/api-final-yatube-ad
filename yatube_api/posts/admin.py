@@ -1,3 +1,4 @@
 from django.contrib import admin
+from .models import Follow  # добавьте, если нужно
 
-# Register your models here.
+admin.site.register(Follow)  # зарегистрируйте модель
