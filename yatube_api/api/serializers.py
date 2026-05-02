@@ -1,0 +1,31 @@
+from rest_framework import serializers
+from posts.models import Follow
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
+
+class FollowSerializer(serializers.ModelSerializer):
+    user = serializers.StringRelatedField(read_only=True)
+    following = serializers.SlugRelatedField(
+        slug_field='username',
+        queryset=User.objects.all()
+    )
+
+    class Meta:
+        model = Follow
+        fields = ('user', 'following')
+        validators = [
+            serializers.UniqueTogetherValidator(
+                queryset=Follow.objects.all(),
+                fields=('user', 'following'),
+                message='Вы уже подписаны на этого пользователя'
+            )
+        ]
+
+    def validate(self, data):
+        if data['following'] == self.context['request'].user:
+            raise serializers.ValidationError(
+                'Нельзя подписаться на самого себя'
+            )
+        return data
